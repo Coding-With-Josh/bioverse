@@ -21,6 +21,14 @@ export const Hero = () => {
         refresh
       />
 
+
+        {/* <Image
+          src={require("@/assets/eclipse.svg")}
+          alt=""
+          fill
+          className="blur-lg opacity-60 object-cover top-[10rem] scale-125"
+          priority
+        /> */}
       <div className="absolute inset-0 z-0">
         <Image
           src={require("@/assets/eclipse.svg")}

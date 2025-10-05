@@ -16,7 +16,6 @@ import {
   Smooch_Sans,
 } from "next/font/google";
 import { Suspense } from "react";
-import { Geist_Mono as V0_Font_Geist_Mono } from "next/font/google";
 import { Particles } from "@/components/ui/sparkles";
 
 // Initialize fonts
@@ -36,7 +35,6 @@ export const metadata: Metadata = {
   title: "The BioVerse | NASA Space Biology Knowledge Engine",
   description:
     "Unlocking Decades of NASA Life Science Data for Earth and Space Exploration",
-  generator: "v0.app",
 };
 
 export default function RootLayout({
