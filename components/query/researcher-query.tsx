@@ -3,7 +3,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Loader2, Image as ImageIcon } from "lucide-react";
+import { Search, Loader2, Image as ImageIcon, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,6 +26,8 @@ interface QueryResult {
   managingCenter: string;
   reasoning?: string;
   imageUrl?: string;
+  studyUrl?: string;
+  dataUrl?: string;
 }
 
 export default function ResearcherQuery() {
@@ -35,6 +37,56 @@ export default function ResearcherQuery() {
   const [results, setResults] = useState<QueryResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+const handleViewStudy = (result: QueryResult) => {
+  if (result.studyUrl) {
+    window.open(result.studyUrl, '_blank', 'noopener,noreferrer');
+  } else {
+    alert(`Study Details:\n\nTitle: ${result.title}\nID: ${result.experimentId}\nYear: ${result.year}\nSystem: ${result.system}\n\n${result.summary}`);
+  }
+};
+
+const handleDownloadData = async (result: QueryResult) => {
+  if (result.dataUrl) {
+    window.open(result.dataUrl, '_blank', 'noopener,noreferrer');
+  } else {
+    try {
+      const dataContent = {
+        study: {
+          title: result.title,
+          experimentId: result.experimentId,
+          year: result.year,
+          system: result.system,
+          projectType: result.projectType,
+          managingCenter: result.managingCenter,
+          summary: result.summary,
+          relevance: result.relevance,
+        },
+        metadata: {
+          downloadedAt: new Date().toISOString(),
+          source: "NASA OSDR Research Database"
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(dataContent, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nasa-study-${result.experimentId}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      console.log(`Downloaded data for: ${result.title}`);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Download functionality is not available for this study. Please visit the NASA OSDR website directly.');
+    }
+  }
+};
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -61,8 +113,6 @@ export default function ResearcherQuery() {
       }
 
       const data = await response.json();
-
-      // In your handleSearch function, update the image fetching part:
 
       // Fetch images for each result
       if (data.results && data.results.length > 0) {
@@ -238,19 +288,17 @@ export default function ResearcherQuery() {
                       onError={(e) => {
                         // Fallback if image fails to load
                         e.currentTarget.style.display = "none";
-                        e.currentTarget.nextElementSibling?.classList.remove(
-                          "hidden"
-                        );
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.classList.remove("hidden");
                       }}
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-white/5 rounded-lg border border-white/10">
-                      <div className="text-center text-gray-400">
-                        <ImageIcon className="w-8 h-8 mx-auto mb-2" />
-                        <p className="text-xs">No image available</p>
-                      </div>
+                  ) : null}
+                  <div className={`w-full h-full flex items-center justify-center bg-white/5 rounded-lg border border-white/10 ${result.imageUrl ? 'hidden' : ''}`}>
+                    <div className="text-center text-gray-400">
+                      <ImageIcon className="w-8 h-8 mx-auto mb-2" />
+                      <p className="text-xs">No image available</p>
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 {/* Text Content */}
@@ -301,10 +349,18 @@ export default function ResearcherQuery() {
                   <div className="flex justify-between items-center text-xs text-gray-400">
                     <span>Managed by: {result.managingCenter || "NASA"}</span>
                     <div className="flex gap-2">
-                      <button className="text-cyan-400 hover:text-cyan-300 transition-colors">
+                      <button 
+                        onClick={() => handleViewStudy(result)}
+                        className="flex items-center cursor-pointer gap-1 text-cyan-400 hover:text-cyan-300 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" />
                         View Study
                       </button>
-                      <button className="text-cyan-400 hover:text-cyan-300 transition-colors">
+                      <button 
+                        onClick={() => handleDownloadData(result)}
+                        className="flex items-center cursor-pointer gap-1 text-cyan-400 hover:text-cyan-300 transition-colors"
+                      >
+                        <Download className="w-3 h-3" />
                         Download Data
                       </button>
                     </div>

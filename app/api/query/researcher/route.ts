@@ -1,3 +1,5 @@
+// app/api/query/researcher/route.ts
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -200,6 +202,8 @@ Return results ranked by relevance score (highest first). Only include studies w
               projectType: study.projectType,
               managingCenter: study.managingNASACenter,
               reasoning: aiResult.reasoning,
+              studyUrl: study.studyUrl,
+              dataUrl: study.dataUrl,
             };
           })
           .filter((r) => r !== null)
@@ -241,6 +245,8 @@ Return results ranked by relevance score (highest first). Only include studies w
           relevance,
           projectType: study.projectType,
           managingCenter: study.managingNASACenter,
+          studyUrl: study.studyUrl,
+          dataUrl: study.dataUrl,
         };
       })
       .filter((r) => r.relevance > 0.2)
