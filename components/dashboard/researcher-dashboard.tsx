@@ -27,7 +27,7 @@ export default function ResearcherDashboard({
     <>
       <DashboardHeader user={user} />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto w-screen px-4 py-6">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Welcome Section with Quick Actions */}
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
