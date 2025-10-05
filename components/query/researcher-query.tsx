@@ -38,55 +38,55 @@ export default function ResearcherQuery() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-const handleViewStudy = (result: QueryResult) => {
-  if (result.studyUrl) {
-    window.open(result.studyUrl, '_blank', 'noopener,noreferrer');
-  } else {
-    alert(`Study Details:\n\nTitle: ${result.title}\nID: ${result.experimentId}\nYear: ${result.year}\nSystem: ${result.system}\n\n${result.summary}`);
-  }
-};
-
-const handleDownloadData = async (result: QueryResult) => {
-  if (result.dataUrl) {
-    window.open(result.dataUrl, '_blank', 'noopener,noreferrer');
-  } else {
-    try {
-      const dataContent = {
-        study: {
-          title: result.title,
-          experimentId: result.experimentId,
-          year: result.year,
-          system: result.system,
-          projectType: result.projectType,
-          managingCenter: result.managingCenter,
-          summary: result.summary,
-          relevance: result.relevance,
-        },
-        metadata: {
-          downloadedAt: new Date().toISOString(),
-          source: "NASA OSDR Research Database"
-        }
-      };
-
-      const blob = new Blob([JSON.stringify(dataContent, null, 2)], {
-        type: 'application/json',
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `nasa-study-${result.experimentId}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      console.log(`Downloaded data for: ${result.title}`);
-    } catch (error) {
-      console.error('Download failed:', error);
-      alert('Download functionality is not available for this study. Please visit the NASA OSDR website directly.');
+  const handleViewStudy = (result: QueryResult) => {
+    if (result.studyUrl) {
+      window.open(result.studyUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      alert(`Study Details:\n\nTitle: ${result.title}\nID: ${result.experimentId}\nYear: ${result.year}\nSystem: ${result.system}\n\n${result.summary}`);
     }
-  }
-};
+  };
+
+  const handleDownloadData = async (result: QueryResult) => {
+    if (result.dataUrl) {
+      window.open(result.dataUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      try {
+        const dataContent = {
+          study: {
+            title: result.title,
+            experimentId: result.experimentId,
+            year: result.year,
+            system: result.system,
+            projectType: result.projectType,
+            managingCenter: result.managingCenter,
+            summary: result.summary,
+            relevance: result.relevance,
+          },
+          metadata: {
+            downloadedAt: new Date().toISOString(),
+            source: "NASA OSDR Research Database"
+          }
+        };
+
+        const blob = new Blob([JSON.stringify(dataContent, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `nasa-study-${result.experimentId}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        console.log(`Downloaded data for: ${result.title}`);
+      } catch (error) {
+        console.error('Download failed:', error);
+        alert('Download functionality is not available for this study. Please visit the NASA OSDR website directly.');
+      }
+    }
+  };
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -187,8 +187,8 @@ const handleDownloadData = async (result: QueryResult) => {
   return (
     <div className="space-y-6">
       {/* Search Inputs */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="space-y-2">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-2 sm:col-span-2 lg:col-span-1">
           <label className="text-sm font-medium text-gray-300">
             Research Query
           </label>
@@ -199,7 +199,7 @@ const handleDownloadData = async (result: QueryResult) => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
+              className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400 w-full"
             />
           </div>
         </div>
@@ -209,7 +209,7 @@ const handleDownloadData = async (result: QueryResult) => {
             Biological System
           </label>
           <Select value={biologicalSystem} onValueChange={setBiologicalSystem}>
-            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
               <SelectValue placeholder="Select system" />
             </SelectTrigger>
             <SelectContent>
@@ -227,7 +227,7 @@ const handleDownloadData = async (result: QueryResult) => {
             Year Range
           </label>
           <Select value={yearRange} onValueChange={setYearRange}>
-            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="bg-white/5 border-white/10 text-white w-full">
               <SelectValue placeholder="Select years" />
             </SelectTrigger>
             <SelectContent>
@@ -250,12 +250,14 @@ const handleDownloadData = async (result: QueryResult) => {
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Searching NASA Databases...
+            <span className="hidden sm:inline">Searching NASA Databases...</span>
+            <span className="sm:hidden">Searching...</span>
           </>
         ) : (
           <>
             <Search className="mr-2 h-4 w-4" />
-            Search Research Database
+            <span className="hidden sm:inline">Search Research Database</span>
+            <span className="sm:hidden">Search</span>
           </>
         )}
       </Button>
@@ -276,10 +278,10 @@ const handleDownloadData = async (result: QueryResult) => {
             key={index}
             className="bg-white/5 border-white/10 backdrop-blur-sm hover:border-cyan-500/30 transition-all duration-300"
           >
-            <CardContent className="p-6">
-              <div className="flex gap-4">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row gap-4">
                 {/* Image Section */}
-                <div className="flex-shrink-0 w-48 h-48">
+                <div className="flex-shrink-0 w-full sm:w-32 md:w-48 h-32 sm:h-48">
                   {result.imageUrl ? (
                     <img
                       src={result.imageUrl}
@@ -295,7 +297,7 @@ const handleDownloadData = async (result: QueryResult) => {
                   ) : null}
                   <div className={`w-full h-full flex items-center justify-center bg-white/5 rounded-lg border border-white/10 ${result.imageUrl ? 'hidden' : ''}`}>
                     <div className="text-center text-gray-400">
-                      <ImageIcon className="w-8 h-8 mx-auto mb-2" />
+                      <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2" />
                       <p className="text-xs">No image available</p>
                     </div>
                   </div>
@@ -303,13 +305,13 @@ const handleDownloadData = async (result: QueryResult) => {
 
                 {/* Text Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-white mb-2 leading-relaxed">
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-2 leading-relaxed line-clamp-2">
                         {result.title}
                       </h3>
 
-                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-3">
                         <span className="font-mono bg-white/10 text-gray-300 px-2 py-1 rounded border border-white/5 text-xs">
                           {result.experimentId}
                         </span>
@@ -331,7 +333,7 @@ const handleDownloadData = async (result: QueryResult) => {
                     </div>
                   </div>
 
-                  <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <p className="text-gray-300 text-sm leading-relaxed mb-3 line-clamp-3">
                     {result.summary}
                   </p>
 
@@ -340,28 +342,30 @@ const handleDownloadData = async (result: QueryResult) => {
                       <p className="text-cyan-400 text-xs font-medium mb-1">
                         AI Analysis:
                       </p>
-                      <p className="text-gray-300 text-sm leading-relaxed">
+                      <p className="text-gray-300 text-sm leading-relaxed line-clamp-2">
                         {result.reasoning}
                       </p>
                     </div>
                   )}
 
-                  <div className="flex justify-between items-center text-xs text-gray-400">
-                    <span>Managed by: {result.managingCenter || "NASA"}</span>
-                    <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-xs text-gray-400">
+                    <span className="text-center sm:text-left">Managed by: {result.managingCenter || "NASA"}</span>
+                    <div className="flex justify-center sm:justify-end gap-3 sm:gap-2">
                       <button 
                         onClick={() => handleViewStudy(result)}
                         className="flex items-center cursor-pointer gap-1 text-cyan-400 hover:text-cyan-300 transition-colors"
                       >
                         <ExternalLink className="w-3 h-3" />
-                        View Study
+                        <span className="hidden sm:inline">View Study</span>
+                        <span className="sm:hidden">View</span>
                       </button>
                       <button 
                         onClick={() => handleDownloadData(result)}
                         className="flex items-center cursor-pointer gap-1 text-cyan-400 hover:text-cyan-300 transition-colors"
                       >
                         <Download className="w-3 h-3" />
-                        Download Data
+                        <span className="hidden sm:inline">Download Data</span>
+                        <span className="sm:hidden">Download</span>
                       </button>
                     </div>
                   </div>
